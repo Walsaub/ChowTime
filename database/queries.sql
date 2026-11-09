@@ -1,3 +1,5 @@
+USE chow_time;
+
 /*
     =========================================
     Roles QUERIES
@@ -56,10 +58,10 @@ SELECT * FROM MenuItem;
 -- get the menu item name and category name
 SELECT M.itemName, C.categoryName
 FROM MenuItem AS M
-INNER JOIN MenuCategory AS C
+LEFT JOIN MenuCategory AS C
 ON M.categoryID = C.id;
 
--- get menu item by category
+-- get menu items by category
 SELECT * FROM MenuItem
 WHERE categoryID = 1;
 
@@ -69,7 +71,7 @@ WHERE categoryID = 1;
     =========================================
 */
 
--- get all allergen
+-- get all allergens
 SELECT * FROM Allergen;
 
 /*
@@ -78,15 +80,15 @@ SELECT * FROM Allergen;
     =========================================
 */
 
--- get all menu items and its allergen if any
+-- get all menu items and their allergens, if any
 SELECT M.itemName, A.allergenName
 FROM MenuItem AS M
-LEFT JOIN MenuItemAllergen AS MA 
+LEFT JOIN MenuItemAllergen AS MA
 ON M.id = MA.menuItemID
 LEFT JOIN Allergen AS A
 ON MA.allergenID = A.id;
 
--- get all menu items that have allergen
+-- get all menu items that have allergens
 SELECT DISTINCT M.itemName
 FROM MenuItemAllergen AS MA
 INNER JOIN MenuItem AS M
@@ -98,7 +100,7 @@ ON MA.menuItemID = M.id;
     =========================================
 */
 
--- get all the options group
+-- get all option groups
 SELECT * FROM OptionGroup;
 
 /*
@@ -107,13 +109,13 @@ SELECT * FROM OptionGroup;
     =========================================
 */
 
--- get all the menu items and its group optin if any
+-- get all menu items and their option groups, if any
 SELECT M.itemName, OG.groupName
 FROM MenuItem AS M
-LEFT JOIN ItemOptionGroup AS IOP
-ON M.id = IOP.menuItemID
+LEFT JOIN ItemOptionGroup AS IOG
+ON M.id = IOG.menuItemID
 LEFT JOIN OptionGroup AS OG
-ON IOP.optionGroupID = OG.id;
+ON IOG.optionGroupID = OG.id;
 
 -- get all customizable menu items with their available options
 SELECT M.itemName, OG.groupName, O.optionName, O.price
@@ -134,7 +136,7 @@ WHERE M.isCustomizable = TRUE
     =========================================
 */
 
--- get all options 
+-- get all options
 SELECT * FROM MenuOption;
 
 -- get the option name with its group name
@@ -160,14 +162,14 @@ SELECT * FROM CustomerOrder;
 SELECT * FROM CustomerOrder
 WHERE tableID = 2;
 
--- get all the orders that was entered by an employee
+-- get all the orders that were entered by an employee
 SELECT * FROM CustomerOrder
 WHERE enteredByEmployeeID IS NOT NULL;
 
--- get all the orders in one day
+-- get all the orders for today
 SELECT * FROM CustomerOrder
-WHERE orderDateTime >= '2026-11-07 00:00:00'
-    AND orderDateTime < '2026-11-08 00:00:00';
+WHERE orderDateTime >= CURDATE()
+    AND orderDateTime < DATE_ADD(CURDATE(), INTERVAL 1 DAY);
 
 -- get orders by status
 SELECT * FROM CustomerOrder
@@ -181,7 +183,7 @@ ON CO.id = OI.orderID
 INNER JOIN MenuItem AS MI
 ON OI.menuItemID = MI.id
 WHERE CO.orderStatus = 'received'
-ORDER BY CO.orderDateTime;
+ORDER BY CO.orderDateTime ASC;
 
 /*
     =========================================
@@ -189,13 +191,13 @@ ORDER BY CO.orderDateTime;
     =========================================
 */
 
--- get all the orders with the its items
+-- get all the orders with their items
 SELECT OI.orderID, MI.itemName, OI.quantity
 FROM OrderItem AS OI
 INNER JOIN MenuItem AS MI
 ON OI.menuItemID = MI.id;
 
--- get all the order items of a specific table at a specific time
+-- get all the order items of a specific table today
 SELECT MI.itemName, OI.quantity
 FROM OrderItem AS OI
 INNER JOIN MenuItem AS MI
@@ -203,30 +205,35 @@ ON OI.menuItemID = MI.id
 WHERE OI.orderID IN (
     SELECT CO.id
     FROM CustomerOrder AS CO
-    WHERE CO.tableID = 2 
-        AND CO.orderDateTime >= '2026-11-07 00:00:00' 
-        AND CO.orderDateTime < '2026-11-08 00:00:00'
+    WHERE CO.tableID = 2
+        AND CO.orderDateTime >= CURDATE()
+        AND CO.orderDateTime < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
 );
 
--- get the sum of each item that have been orderd
+-- get the total quantity of each item that has been ordered
 SELECT MI.itemName, SUM(OI.quantity) AS total
 FROM OrderItem AS OI
 INNER JOIN MenuItem AS MI
 ON OI.menuItemID = MI.id
-GROUP BY OI.menuItemID
+INNER JOIN CustomerOrder AS CO
+ON OI.orderID = CO.id
+WHERE CO.orderStatus <> 'cancelled'
+GROUP BY OI.menuItemID, MI.itemName
 ORDER BY total DESC;
 
--- get the total sales for a specific day
-SELECT DATE(CO.orderDateTime) AS orderDate, SUM(OI.quantity * MI.price) AS totalSales
+-- get the total sales for today
+-- Uses current menu prices and excludes cancelled orders
+SELECT DATE(CO.orderDateTime) AS orderDate,
+       SUM(OI.quantity * MI.price) AS totalSales
 FROM CustomerOrder AS CO
 INNER JOIN OrderItem AS OI
 ON CO.id = OI.orderID
 INNER JOIN MenuItem AS MI
 ON OI.menuItemID = MI.id
-WHERE CO.orderDateTime >= '2026-11-07 00:00:00'
-    AND CO.orderDateTime < '2026-11-08 00:00:00'
+WHERE CO.orderDateTime >= CURDATE()
+    AND CO.orderDateTime < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
     AND CO.orderStatus <> 'cancelled'
-GROUP BY DATE(CO.orderDateTime)
+GROUP BY DATE(CO.orderDateTime);
 
 /*
     =========================================
@@ -252,11 +259,12 @@ WHERE OI.orderID = 1;
 */
 
 -- get all pending and in-progress help requests
-SELECT HR.id, RT.tableNumber, HR.requestTime, HR.requestStatus, E.firstName, E.lastname
+SELECT HR.id, RT.tableNumber, HR.requestTime,
+       HR.requestStatus, E.firstName, E.lastname
 FROM HelpRequest AS HR
 LEFT JOIN RestaurantTable AS RT
 ON HR.tableID = RT.id
 LEFT JOIN Employee AS E
 ON HR.handledByEmployeeID = E.id
 WHERE HR.requestStatus IN ('pending', 'in_progress')
-ORDER BY HR.requestTime;
+ORDER BY HR.requestTime ASC;

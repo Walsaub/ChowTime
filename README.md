@@ -48,6 +48,10 @@ The database consists of 14 tables:
 13. OrderItem
 14. HelpRequest
 
+
+![alt text](ER_diagram.png)
+
+
 The database uses primary keys and foreign keys to maintain relationships between tables and keep the stored information organized.
 
 The database design also considers normalization up to Third Normal Form (3NF) to reduce unnecessary data duplication and improve data consistency.
@@ -57,9 +61,6 @@ The database design also considers normalization up to Third Normal Form (3NF) t
 - Relational Database 
 - SQL
 
-## Project Structure
-
-The project contains the database design, including the ER diagram, relational schema, and table definitions. Additional application files and source code can be added as development progresses.
 
 ## Project Goals
 
