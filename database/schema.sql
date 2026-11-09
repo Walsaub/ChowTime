@@ -6,7 +6,7 @@ USE chow_time;
 -- Tables creation
 CREATE TABLE IF NOT EXISTS Role(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    roleName VARCHAR(30) NOT NULL
+    roleName VARCHAR(30) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Employee(
@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS RestaurantTable(
     tableNumber INT UNSIGNED UNIQUE NOT NULL,
     waiterID INT,
     capacity TINYINT UNSIGNED NOT NULL,
-    status VARCHAR(15) NOT NULL,
+    status VARCHAR(15) NOT NULL DEFAULT 'available',
+    CHECK (capacity > 0),
+    CHECK (status IN ('available', 'occupied', 'reserved')),
     FOREIGN KEY (waiterID) REFERENCES Employee(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE
@@ -34,7 +36,7 @@ CREATE TABLE IF NOT EXISTS RestaurantTable(
 
 CREATE TABLE IF NOT EXISTS MenuCategory(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    categoryName VARCHAR(20) UNIQUE
+    categoryName VARCHAR(20) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS MenuItem(
@@ -45,6 +47,7 @@ CREATE TABLE IF NOT EXISTS MenuItem(
     price DECIMAL(5,2) NOT NULL,
     isAvailable BOOLEAN NOT NULL,
     isCustomizable BOOLEAN NOT NULL,
+    CHECK (price >= 0),
     FOREIGN KEY (categoryID) REFERENCES MenuCategory(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE
@@ -69,7 +72,7 @@ CREATE TABLE IF NOT EXISTS MenuItemAllergen(
 
 CREATE TABLE IF NOT EXISTS OptionGroup(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    groupName VARCHAR(20) NOT NULL
+    groupName VARCHAR(20) UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ItemOptionGroup(
@@ -78,7 +81,7 @@ CREATE TABLE IF NOT EXISTS ItemOptionGroup(
     minSelections TINYINT UNSIGNED NOT NULL,
     maxSelections TINYINT UNSIGNED NOT NULL,
     PRIMARY KEY (menuItemID, optionGroupID),
-    CHECK (minSelections <= maxSelections),
+    CHECK (minSelections <= maxSelections AND maxSelections > 0),
     FOREIGN KEY (menuItemID) REFERENCES MenuItem(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
@@ -89,12 +92,13 @@ CREATE TABLE IF NOT EXISTS ItemOptionGroup(
 
 CREATE TABLE IF NOT EXISTS MenuOption(
     id INT AUTO_INCREMENT PRIMARY KEY,
-    optionGroupID INT,
-    optionName VARCHAR(20),
-    price DECIMAL(4,2),
-    isAvailable BOOLEAN,
+    optionGroupID INT NOT NULL,
+    optionName VARCHAR(20) NOT NULL,
+    price DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+    isAvailable BOOLEAN NOT NULL DEFAULT TRUE,
+    CHECK (price >= 0),
     FOREIGN KEY (optionGroupID) REFERENCES OptionGroup(id)
-        ON DELETE SET NULL
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -103,7 +107,8 @@ CREATE TABLE IF NOT EXISTS CustomerOrder(
     tableID INT,
     enteredByEmployeeID INT,
     orderDateTime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    orderStatus VARCHAR(15) NOT NULL,
+    orderStatus VARCHAR(15) NOT NULL DEFAULT 'received',
+    CHECK (orderStatus IN ('received', 'preparing', 'ready', 'completed', 'cancelled')),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id)
         ON DELETE SET NULL
         ON UPDATE CASCADE,
@@ -117,6 +122,7 @@ CREATE TABLE IF NOT EXISTS OrderItem(
     orderID INT NOT NULL,
     menuItemID INT NOT NULL,
     quantity TINYINT UNSIGNED NOT NULL,
+    CHECK (quantity > 0),
     FOREIGN KEY (orderID) REFERENCES CustomerOrder(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
@@ -129,6 +135,7 @@ CREATE TABLE IF NOT EXISTS OrderItemOption(
     orderItemID INT,
     optionID INT,
     quantity TINYINT UNSIGNED NOT NULL,
+    CHECK (quantity > 0),
     PRIMARY KEY (orderItemID, optionID),
     FOREIGN KEY (orderItemID) REFERENCES OrderItem(id)
         ON DELETE CASCADE
@@ -143,7 +150,8 @@ CREATE TABLE IF NOT EXISTS HelpRequest(
     tableID INT,
     handledByEmployeeID INT,
     requestTime DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    requestStatus VARCHAR(15) NOT NULL,
+    requestStatus VARCHAR(15) NOT NULL DEFAULT 'pending',
+    CHECK (requestStatus IN ('pending', 'in_progress', 'completed')),
     FOREIGN KEY (tableID) REFERENCES RestaurantTable(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
