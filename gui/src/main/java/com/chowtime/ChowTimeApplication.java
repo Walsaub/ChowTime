@@ -10,10 +10,12 @@ import java.io.IOException;
 public class ChowTimeApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(ChowTimeApplication.class.getResource("database-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(ChowTimeApplication.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Chow Time");
+        stage.setTitle("Chow Time - Login");
         stage.setScene(scene);
+        stage.setResizable(false);
+        stage.centerOnScreen();
         stage.show();
     }
 }

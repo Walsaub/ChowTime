@@ -18,11 +18,11 @@ public class DatabaseController {
     @FXML
     public void initialize(){
         try {
-            databaseService.initializeDatabase();
+            //get all the database tables
             tableList.getItems().setAll(databaseService.getDatabaseTables());
             statusLabel.setText("Connected successfully! Database is ready.");
         } catch (Exception e) {
-            statusLabel.setText("Database connection failed: " + e.getMessage());
+            statusLabel.setText("Could not retrieve database tables.");
             e.printStackTrace();
         }
     }

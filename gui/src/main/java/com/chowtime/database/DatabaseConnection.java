@@ -9,17 +9,22 @@ public class DatabaseConnection {
             "jdbc:mysql://localhost:3306/?serverTimezone=UTC";
     private static final String DATABASE_URL =
             "jdbc:mysql://localhost:3306/chow_time?serverTimezone=UTC";
-    private static final String USER =
-            System.getenv().getOrDefault("DB_USER", "root");
-    //TODO: Add password to run
-    private static final String PASSWORD =
-            System.getenv().getOrDefault("DB_PASSWORD", "");
 
-    public static Connection getServerConnection() throws SQLException {
-        return DriverManager.getConnection(SERVER_URL, USER, PASSWORD);
+    private static String username;
+    private static String password;
+
+    public static void configure(String user, String pass){
+        username = user;
+        password = pass;
     }
 
+    //connect to MySQL server
+    public static Connection getServerConnection() throws SQLException {
+        return DriverManager.getConnection(SERVER_URL, username, password);
+    }
+
+    //connect to Chow Time database
     public static Connection getDatabaseConnection() throws SQLException {
-        return DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
+        return DriverManager.getConnection(DATABASE_URL, username, password);
     }
 }

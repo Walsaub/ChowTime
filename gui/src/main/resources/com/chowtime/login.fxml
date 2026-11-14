@@ -4,13 +4,55 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.chowtime.controllers.LoginController"
+      alignment="CENTER"
+      spacing="15"
+      prefWidth="420"
+      prefHeight="450"
+      style="-fx-padding: 35;">
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!"/>
+    <Label text="Chow Time"
+           style="-fx-font-size: 28px; -fx-font-weight: bold;"
+    />
+
+    <Label text="Database Login"
+           style="-fx-font-size: 17px;"
+    />
+
+    <VBox spacing="7">
+        <Label text="Username"/>
+        <TextField fx:id="usernameField"
+                   promptText="Enter MySQL username"
+                   prefHeight="38"
+        />
+    </VBox>
+
+    <VBox spacing="7">
+        <Label text="Password"/>
+        <PasswordField fx:id="passwordField"
+                       promptText="Enter MySQL password"
+                       prefHeight="38"
+                       onAction="#handleLogin"
+        />
+    </VBox>
+
+    <Button fx:id="loginButton"
+            text="Connect"
+            onAction="#handleLogin"
+            prefWidth="100"
+            prefHeight="40"
+            style="-fx-font-size: 14px;"
+    />
+
+    <Label fx:id="statusLabel"
+           text=""
+           wrapText="true"
+           style="-fx-text-fill: red;"
+    />
+
 </VBox>
