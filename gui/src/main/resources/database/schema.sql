@@ -1,7 +1,7 @@
 -- Database creation and selection
-CREATE Database IF NOT EXISTS chow_time;
-
-USE chow_time;
+-- CREATE Database IF NOT EXISTS chow_time;
+--
+-- USE chow_time;
 
 -- Tables creation
 CREATE TABLE IF NOT EXISTS Role(
