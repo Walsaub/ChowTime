@@ -7,4 +7,5 @@ module com.example.gui {
 
     exports com.chowtime;
     opens com.chowtime.controllers to javafx.fxml;
+    opens com.chowtime.models to javafx.base;
 }
