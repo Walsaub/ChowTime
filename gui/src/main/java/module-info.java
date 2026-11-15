@@ -2,6 +2,7 @@ module com.example.gui {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
+    requires jbcrypt;
 
 
     exports com.chowtime;
