@@ -1,6 +1,7 @@
 package com.chowtime.services;
 
 import com.chowtime.database.DatabaseConnection;
+import com.chowtime.models.Employee;
 import com.chowtime.models.RestaurantTable;
 
 import java.sql.Connection;
@@ -18,6 +19,7 @@ public class TableService {
             ORDER BY tableNumber
             """;
 
+    // get all the available restaurant tables
     public List<RestaurantTable> getAvailableTables() throws SQLException{
         List<RestaurantTable> tables = new ArrayList<>();
 
@@ -39,4 +41,57 @@ public class TableService {
         }
         return tables;
     }
+
+    // get all the waiters in the restaurant
+    public List<Employee> getWaiters() throws SQLException{
+        List<Employee> waiters = new ArrayList<>();
+
+        String query = """
+                SELECT e.id, e.firstName, e.lastname, e.username, r.roleName
+                FROM Employee e
+                JOIN Role r ON e.roleID = r.id
+                WHERE r.roleName = ?
+                ORDER BY e.firstName
+                """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, "Waiter");
+
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()){
+                    Employee employee = new Employee(
+                            result.getInt("id"),
+                            result.getString("firstName"),
+                            result.getString("lastname"),
+                            result.getString("username"),
+                            result.getString("roleName")
+                    );
+                    waiters.add(employee);
+                }
+            }
+        }
+
+        return waiters;
+    }
+
+    // update the restaurant table status and that table assigned employee
+    public boolean assignTable(int tableID, int waiterID) throws SQLException{
+        String query = """
+                UPDATE RestaurantTable
+                SET status = ?, waiterID = ?
+                WHERE id = ? AND status = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, "occupied");
+            statement.setInt(2, waiterID);
+            statement.setInt(3, tableID);
+            statement.setString(4, "available");
+
+            return statement.executeUpdate() == 1;
+        }
+    }
+
 }

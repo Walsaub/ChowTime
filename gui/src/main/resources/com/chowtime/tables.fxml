@@ -24,19 +24,31 @@
                VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="tableNumberColumn"
-                         text="Table Number"
-                         prefWidth="200"/>
+                         text="Table Number"/>
             <TableColumn fx:id="capacityColumn"
-                         text="Capacity"
-                         prefWidth="200"/>
+                         text="Capacity"/>
             <TableColumn fx:id="statusColumn"
-                         text="Status"
-                         prefWidth="200"/>
+                         text="Status"/>
         </columns>
     </TableView>
 
+    <Label text="Assign a waiter to the selected table"
+           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <Label fx:id="selectedTableLabel"
+           text="No table selected"/>
+
+    <ComboBox fx:id="waiterComboBox"
+              promptText="Select a waiter"
+              prefWidth="280"/>
+
+    <Button text="Assign Waiter"
+            onAction="#handleAssignWaiter"
+            maxWidth="280"/>
+
     <Button text="Refresh Tables"
             onAction="#handleRefresh"/>
+
     <Label fx:id="messageLabel"
            text=""
            wrapText="true"/>
