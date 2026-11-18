@@ -5,12 +5,16 @@ import com.chowtime.models.RestaurantTable;
 import com.chowtime.services.TableService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -108,25 +112,36 @@ public class TableController {
         }
 
         try {
+
+            // Load the food selection page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/menu.fxml"));
+            Scene scene = new Scene(loader.load());
+
+            // Update the table in the database
             boolean assigned = tableService.assignTable(selectedTable.getId(), selectedWaiter.getId());
 
             if (assigned){
-                int tableNumber = selectedTable.getTableNumber();
-                String waiterName = selectedWaiter.toString();
+                // Pass table and waiter information to MenuController
+                MenuController menuController = loader.getController();
 
-                tablesTableView.getSelectionModel().clearSelection();
-                waiterComboBox.getSelectionModel().clearSelection();
-
-                loadAvailableTables();
-                messageLabel.setText(
-                        "Table " + tableNumber + " assigned to " + waiterName + "."
+                menuController.setOrderContext(
+                        selectedTable.getId(),
+                        selectedWaiter.getId(),
+                        selectedTable.getTableNumber(),
+                        selectedWaiter.toString()
                 );
+
+                Stage stage = (Stage) tablesTableView.getScene().getWindow();
+                stage.setScene(scene);
+                stage.setTitle("Chow Time - Food Selection");
+                stage.show();
+
             } else {
                 messageLabel.setText("This table is no longer available. Refreshed the available table.");
                 loadAvailableTables();
             }
-        } catch (SQLException e){
-            messageLabel.setText("Unable to assign the table.");
+        } catch (SQLException | IOException e){
+            messageLabel.setText("Unable to assign the table or open food selection.");
             e.printStackTrace();
         }
     }
