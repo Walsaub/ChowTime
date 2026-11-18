@@ -94,4 +94,22 @@ public class TableService {
         }
     }
 
+    // handle the clear table button to update the status of the restaurant table and the assigned waiter
+    public boolean closeTable(int tableID) throws SQLException{
+        String query = """
+                UPDATE RestaurantTable
+                SET status = ?, waiterID = NULL
+                WHERE id = ? AND status = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setString(1, "available");
+            statement.setInt(2, tableID);
+            statement.setString(3, "occupied");
+
+            return statement.executeUpdate() == 1;
+        }
+    }
+
 }

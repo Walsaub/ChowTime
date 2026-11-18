@@ -17,11 +17,22 @@
         <Insets top="20" right="25" bottom="20" left="25"/>
     </padding>
 
-    <Label text="Food Selection"
-           style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
+    <HBox alignment="CENTER_LEFT" spacing="15">
 
-    <Label fx:id="tableInfoLabel"
-           text="Table information"/>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Food Selection"
+                   style="-fx-font-size: 26px; -fx-font-weight: bold;"/>
+
+            <Label fx:id="tableInfoLabel"
+                   text="Table information"/>
+        </VBox>
+
+        <Button text="Close Table"
+                onAction="#handleCloseTable"
+                style="-fx-font-weight: bold;"/>
+
+    </HBox>
+
 
     <Label text="Available Food Items"
            style="-fx-font-size: 18px; -fx-font-weight: bold;"/>

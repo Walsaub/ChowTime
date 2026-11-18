@@ -1,15 +1,23 @@
 package com.chowtime.controllers;
 
+import com.chowtime.models.Employee;
 import com.chowtime.models.OrderCartItem;
+import com.chowtime.services.EmployeeService;
 import com.chowtime.services.MenuService;
 import com.chowtime.services.OrderService;
+import com.chowtime.services.TableService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import com.chowtime.models.MenuItem;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -58,6 +66,8 @@ public class MenuController {
 
     private final MenuService menuService = new MenuService();
     private final OrderService orderService = new OrderService();
+    private final EmployeeService employeeService = new EmployeeService();
+    private final TableService tableService = new TableService();
 
     private final ObservableList<OrderCartItem> cartItems = FXCollections.observableArrayList();
 
@@ -194,6 +204,84 @@ public class MenuController {
             messageLabel.setText("Order #" + orderID + " created successfully.");
         } catch (SQLException e){
             messageLabel.setText("Unable to save the order.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleCloseTable(){
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Close Table");
+        dialog.setHeaderText("Employee authentication is required to close this table.");
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Username");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        VBox content = new VBox(10,
+                new Label("Username:"),
+                usernameField,
+                new Label("Password:"),
+                passwordField
+        );
+
+        content.setPadding(new javafx.geometry.Insets(15));
+        dialog.getDialogPane().setContent(content);
+
+        ButtonType confirmButton = new ButtonType("Confirm");
+        ButtonType cancelButton = ButtonType.CANCEL;
+
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButton, cancelButton);
+
+        var result = dialog.showAndWait();
+
+        if (result.isEmpty() || result.get() != confirmButton){
+            return;
+        }
+
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()){
+            messageLabel.setText("Please enter your username and password.");
+            return;
+        }
+
+        try {
+            // Verify the employee's credentials
+            Employee employee = employeeService.login(username, password);
+
+            if (employee == null){
+                messageLabel.setText("Incorrect username or password.");
+                return;
+            }
+
+            // Only managers and waiters can close a table
+            if (!employee.getRoleName().equalsIgnoreCase("Manager")
+                    && !employee.getRoleName().equalsIgnoreCase("waiter")){
+                messageLabel.setText("You are not authorized to close tables.");
+                return;
+            }
+
+            // Update the table in the database
+            boolean closed = tableService.closeTable(tableID);
+
+            if (!closed){
+                messageLabel.setText("Unable to close table.");
+                return;
+            }
+
+            // Return to the restaurant tables page
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/tables.fxml"));
+            Scene scene = new Scene(loader.load());
+            Stage stage = (Stage) menuTableView.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Restaurant Tables");
+            stage.show();
+        } catch (SQLException | IOException e){
+            messageLabel.setText("Unable to close table.");
             e.printStackTrace();
         }
     }
