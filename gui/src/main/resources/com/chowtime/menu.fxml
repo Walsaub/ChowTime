@@ -37,6 +37,10 @@
     <Label text="Available Food Items"
            style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
+    <TabPane fx:id="categoryTabPane"
+             tabClosingPolicy="UNAVAILABLE"
+             prefHeight="75"/>
+
     <TableView fx:id="menuTableView" prefHeight="230">
         <columns>
             <TableColumn fx:id="itemNameColumn" text="Food Item" prefWidth="200"/>

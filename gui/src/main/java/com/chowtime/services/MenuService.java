@@ -13,12 +13,31 @@ import java.util.List;
 public class MenuService {
 
     private static final String AVAILABLE_ITEMS_QUERY = """
-            SELECT mi.id, mi.itemName, mi.description, mi.price, mi.isCustomizable, mc.categoryName
+            SELECT mi.id, mi.itemName, mi.description, mi.price,
+                   mi.isCustomizable, mc.categoryName
             FROM MenuItem mi
             LEFT JOIN MenuCategory mc
                 ON mi.categoryID = mc.id
-                WHERE mi.isAvailable = TRUE
-                ORDER BY mc.categoryName, mi.itemName
+            WHERE mi.isAvailable = TRUE
+            ORDER BY mc.categoryName, mi.itemName
+            """;
+
+    private static final String AVAILABLE_CATEGORIES_QUERY = """
+            SELECT DISTINCT mc.categoryName
+            FROM MenuCategory mc
+            JOIN MenuItem mi ON mi.categoryID = mc.id
+            WHERE mi.isAvailable = TRUE
+            ORDER BY mc.categoryName
+            """;
+
+    private static final String ITEMS_BY_CATEGORY_QUERY = """
+            SELECT mi.id, mi.itemName, mi.description, mi.price,
+                   mi.isCustomizable, mc.categoryName
+            FROM MenuItem mi
+            JOIN MenuCategory mc ON mi.categoryID = mc.id
+            WHERE mi.isAvailable = TRUE
+              AND mc.categoryName = ?
+            ORDER BY mi.itemName
             """;
 
     // get all the available menu items
@@ -29,18 +48,55 @@ public class MenuService {
              PreparedStatement statement = connection.prepareStatement(AVAILABLE_ITEMS_QUERY);
              ResultSet result = statement.executeQuery()){
             while (result.next()){
-                MenuItem item = new MenuItem(
-                        result.getInt("id"),
-                        result.getString("itemName"),
-                        result.getString("description"),
-                        result.getString("categoryName"),
-                        result.getBigDecimal("price"),
-                        result.getBoolean("isCustomizable")
-                );
-                items.add(item);
+                items.add(createMenuItem(result));
+            }
+        }
+        return items;
+    }
+
+    // get categories that have available food items
+    public List<String> getAvailableCategories() throws SQLException{
+        List<String> categories = new ArrayList<>();
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(AVAILABLE_CATEGORIES_QUERY);
+             ResultSet result = statement.executeQuery()) {
+
+            while (result.next()) {
+                categories.add(result.getString("categoryName"));
+            }
+        }
+
+        return categories;
+    }
+
+    // get available food items from one category
+    public List<MenuItem> getAvailableItemsByCategory(String categoryName) throws SQLException {
+        List<MenuItem> items = new ArrayList<>();
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(ITEMS_BY_CATEGORY_QUERY)){
+            statement.setString(1, categoryName);
+
+            try (ResultSet result = statement.executeQuery()) {
+                while (result.next()) {
+                    items.add(createMenuItem(result));
+                }
             }
         }
 
         return items;
     }
+
+    // convert a database row into a MenuItem object
+    private MenuItem createMenuItem(ResultSet result) throws SQLException {
+        return new MenuItem(
+                result.getInt("id"),
+                result.getString("itemName"),
+                result.getString("description"),
+                result.getString("categoryName"),
+                result.getBigDecimal("price"),
+                result.getBoolean("isCustomizable")
+        );
+    }
+
 }

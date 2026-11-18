@@ -26,6 +26,9 @@ import java.util.List;
 public class MenuController {
 
     @FXML
+    private TabPane categoryTabPane;
+
+    @FXML
     private Label tableInfoLabel;
 
     @FXML
@@ -99,7 +102,7 @@ public class MenuController {
 
         cartTableView.setItems(cartItems);
 
-        loadMenuItems();
+        loadCategories();
         updateTotal();
     }
 
@@ -109,9 +112,42 @@ public class MenuController {
         tableInfoLabel.setText("Table " + tableNumber + " | Waiter: " + waiterName);
     }
 
-    private void loadMenuItems(){
+
+    // Load the food categories and create a tab for each one
+    private void loadCategories(){
         try {
-            List<MenuItem> items = menuService.getAvailableItems();
+            List<String> categories = menuService.getAvailableCategories();
+            categoryTabPane.getTabs().clear();
+
+            if (categories.isEmpty()){
+                messageLabel.setText("No food categories available.");
+                menuTableView.getItems().clear();
+                return;
+            }
+
+            for (String category : categories){
+                Tab tab = new Tab(category);
+                tab.setOnSelectionChanged(event -> {
+                    if (tab.isSelected()){
+                        loadCategoryItems(category);
+                    }
+                });
+                categoryTabPane.getTabs().add(tab);
+            }
+
+            // Select the first category when the page opens
+            categoryTabPane.getSelectionModel().selectFirst();
+            loadCategoryItems(categories.get(0));
+        } catch (SQLException e){
+            messageLabel.setText("Unable to load food categories.");
+            e.printStackTrace();
+        }
+    }
+
+    // Load food items belonging to the selected category
+    private void loadCategoryItems(String category){
+        try {
+            List<MenuItem> items = menuService.getAvailableItemsByCategory(category);
             menuTableView.setItems(FXCollections.observableArrayList(items));
             messageLabel.setText(items.size() + " food item(s) available.");
         } catch (SQLException e){
