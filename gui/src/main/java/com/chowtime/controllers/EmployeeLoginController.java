@@ -3,11 +3,15 @@ package com.chowtime.controllers;
 import com.chowtime.models.Employee;
 import com.chowtime.services.EmployeeService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 public class EmployeeLoginController {
@@ -38,19 +42,27 @@ public class EmployeeLoginController {
 
             if (employee != null){
                 messageLabel.setText("");
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Login Successful");
-                alert.setHeaderText("Welcome to Chow Time!");
-                alert.setContentText("Welcome, " + employee.getFirstName());
-                alert.showAndWait();
+                
 
                 //TODO: Open the dashboard
+                String fxmlPath = switch (employee.getRoleName()) {
+                    case "Manager" -> "/com/chowtime/manager-dashboard.fxml";
+                    case "Waiter" -> "/com/chowtime/waiter-dashboard.fxml";
+                    case "Cook" -> "/com/chowtime/cook-dashboard.fxml";
+                    default -> null;
+                };
+
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                Scene scene = new Scene(loader.load());
+                Stage stage = (Stage) passwordField.getScene().getWindow();
+                stage.setTitle("Chow Time - Dashboard");
+                stage.setScene(scene);
+                stage.centerOnScreen();
             } else {
                 messageLabel.setText("Incorrect username or password.");
                 passwordField.clear();
             }
-        } catch (SQLException e){
+        } catch (SQLException | IOException e){
             messageLabel.setText("Unable to connect to the database.");
             e.printStackTrace();
         }

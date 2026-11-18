@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.chowtime.controllers.CookController">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 15;">
+            <Label text="Cook Dashboard"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <HBox spacing="10">
+                <Button text="Refresh Orders"
+                        onAction="#handleRefresh"/>
+
+                <Label fx:id="messageLabel"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.55">
+
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <Label text="Active Orders"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                <TableView fx:id="ordersTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="orderIdColumn"
+                                     text="Order"
+                                     prefWidth="65"/>
+
+                        <TableColumn fx:id="tableNumberColumn"
+                                     text="Table"
+                                     prefWidth="65"/>
+
+                        <TableColumn fx:id="waiterColumn"
+                                     text="Waiter"
+                                     prefWidth="110"/>
+
+                        <TableColumn fx:id="statusColumn"
+                                     text="Status"
+                                     prefWidth="100"/>
+
+                        <TableColumn fx:id="dateColumn"
+                                     text="Time"
+                                     prefWidth="140"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="10" style="-fx-padding: 10;">
+                <Label text="Order Items"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                <TableView fx:id="itemsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="itemNameColumn"
+                                     text="Food Item"
+                                     prefWidth="130"/>
+
+                        <TableColumn fx:id="quantityColumn"
+                                     text="Quantity"
+                                     prefWidth="75"/>
+
+                        <TableColumn fx:id="optionsColumn"
+                                     text="Customizations"
+                                     prefWidth="180"/>
+                    </columns>
+                </TableView>
+
+                <Label text="Update Order Status"/>
+
+                <HBox spacing="10">
+                    <ComboBox fx:id="statusComboBox"
+                              promptText="Select status"
+                              HBox.hgrow="ALWAYS"/>
+
+                    <Button text="Update Status"
+                            onAction="#handleUpdateStatus"/>
+                </HBox>
+            </VBox>
+
+        </SplitPane>
+    </center>
+
+</BorderPane>
