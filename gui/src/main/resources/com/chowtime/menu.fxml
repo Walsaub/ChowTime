@@ -46,6 +46,7 @@
             <TableColumn fx:id="itemNameColumn" text="Food Item" prefWidth="200"/>
             <TableColumn fx:id="categoryColumn" text="Category" prefWidth="150"/>
             <TableColumn fx:id="priceColumn" text="Price" prefWidth="120"/>
+            <TableColumn fx:id="allergenColumn" text="Allergens" prefWidth="180"/>
         </columns>
     </TableView>
 

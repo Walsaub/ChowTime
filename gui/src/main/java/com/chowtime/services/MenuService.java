@@ -17,14 +17,19 @@ import java.util.Map;
 public class MenuService {
 
     private static final String AVAILABLE_ITEMS_QUERY = """
-            SELECT mi.id, mi.itemName, mi.description, mi.price,
-                   mi.isCustomizable, mc.categoryName
-            FROM MenuItem mi
-            LEFT JOIN MenuCategory mc
-                ON mi.categoryID = mc.id
-            WHERE mi.isAvailable = TRUE
-            ORDER BY mc.categoryName, mi.itemName
-            """;
+        SELECT mi.id, mi.itemName, mi.description, mi.price,
+               mi.isCustomizable, mc.categoryName,
+               (
+                   SELECT GROUP_CONCAT(a.allergenName SEPARATOR ', ')
+                   FROM MenuItemAllergen mia
+                   JOIN Allergen a ON mia.allergenID = a.id
+                   WHERE mia.menuItemID = mi.id
+               ) AS allergens
+        FROM MenuItem mi
+        LEFT JOIN MenuCategory mc ON mi.categoryID = mc.id
+        WHERE mi.isAvailable = TRUE
+        ORDER BY mc.categoryName, mi.itemName
+        """;
 
     private static final String AVAILABLE_CATEGORIES_QUERY = """
             SELECT DISTINCT mc.categoryName
@@ -35,14 +40,20 @@ public class MenuService {
             """;
 
     private static final String ITEMS_BY_CATEGORY_QUERY = """
-            SELECT mi.id, mi.itemName, mi.description, mi.price,
-                   mi.isCustomizable, mc.categoryName
-            FROM MenuItem mi
-            JOIN MenuCategory mc ON mi.categoryID = mc.id
-            WHERE mi.isAvailable = TRUE
-              AND mc.categoryName = ?
-            ORDER BY mi.itemName
-            """;
+        SELECT mi.id, mi.itemName, mi.description, mi.price,
+               mi.isCustomizable, mc.categoryName,
+               (
+                   SELECT GROUP_CONCAT(a.allergenName SEPARATOR ', ')
+                   FROM MenuItemAllergen mia
+                   JOIN Allergen a ON mia.allergenID = a.id
+                   WHERE mia.menuItemID = mi.id
+               ) AS allergens
+        FROM MenuItem mi
+        LEFT JOIN MenuCategory mc ON mi.categoryID = mc.id
+        WHERE mi.isAvailable = TRUE
+          AND mc.categoryName = ?
+        ORDER BY mi.itemName
+        """;
 
     private static final String ITEM_OPTIONS_QUERY = """
         SELECT og.id AS groupID, og.groupName,
@@ -139,7 +150,7 @@ public class MenuService {
 
     // convert a database row into a MenuItem object
     private MenuItem createMenuItem(ResultSet result) throws SQLException {
-        return new MenuItem(
+        MenuItem menuItem = new MenuItem(
                 result.getInt("id"),
                 result.getString("itemName"),
                 result.getString("description"),
@@ -147,6 +158,14 @@ public class MenuService {
                 result.getBigDecimal("price"),
                 result.getBoolean("isCustomizable")
         );
+
+        String allergenText = result.getString("allergens");
+        if (allergenText != null && !allergenText.isBlank()){
+            menuItem.setAllergens(new ArrayList<>(List.of(allergenText.split(", "))));
+        } else {
+            menuItem.setAllergens(new ArrayList<>());
+        }
+        return menuItem;
     }
 
 }

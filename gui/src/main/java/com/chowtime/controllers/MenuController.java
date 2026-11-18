@@ -54,6 +54,9 @@ public class MenuController {
     private TableColumn<MenuItem, BigDecimal> priceColumn;
 
     @FXML
+    private TableColumn<MenuItem, String> allergenColumn;
+
+    @FXML
     private TableView<OrderCartItem> cartTableView;
 
     @FXML
@@ -85,9 +88,10 @@ public class MenuController {
     public void initialize(){
 
         // resize the tables columns
-        itemNameColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/3));
-        categoryColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/3));
-        priceColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/3));
+        itemNameColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/4));
+        categoryColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/4));
+        priceColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/4));
+        allergenColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/4));
 
         cartItemNameColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
         cartQuantityColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
@@ -99,6 +103,7 @@ public class MenuController {
         itemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         categoryColumn.setCellValueFactory(new PropertyValueFactory<>("categoryName"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        allergenColumn.setCellValueFactory(new PropertyValueFactory<>("allergensDescription"));
 
         cartItemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
         cartQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));

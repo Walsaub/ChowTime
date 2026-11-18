@@ -1,6 +1,8 @@
 package com.chowtime.models;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MenuItem {
     private int id;
@@ -9,6 +11,7 @@ public class MenuItem {
     private String categoryName;
     private BigDecimal price;
     private boolean customizable;
+    private List<String> allergens = new ArrayList<>();
 
     public MenuItem(int id, String itemName, String description, String categoryName, BigDecimal price, boolean customizable) {
         this.id = id;
@@ -41,5 +44,21 @@ public class MenuItem {
 
     public boolean isCustomizable() {
         return customizable;
+    }
+
+    public List<String> getAllergens() {
+        return allergens;
+    }
+
+    public void setAllergens(List<String> allergens) {
+        this.allergens = allergens;
+    }
+
+    public String getAllergensDescription() {
+        if (allergens == null || allergens.isEmpty()) {
+            return "None";
+        }
+
+        return String.join(", ", allergens);
     }
 }
