@@ -11,7 +11,7 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.chowtime.controllers.MenuController"
       spacing="12"
-      prefHeight="700" prefWidth="850">
+      prefHeight="700" prefWidth="1000">
 
     <padding>
         <Insets top="20" right="25" bottom="20" left="25"/>
@@ -67,6 +67,7 @@
             <TableColumn fx:id="cartQuantityColumn" text="Quantity" prefWidth="120"/>
             <TableColumn fx:id="cartPriceColumn" text="Unit Price" prefWidth="120"/>
             <TableColumn fx:id="cartSubtotalColumn" text="Subtotal" prefWidth="120"/>
+            <TableColumn fx:id="cartItemOptionsColumn" text="Customizations" prefWidth="200"/>
         </columns>
     </TableView>
 

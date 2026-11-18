@@ -1,7 +1,7 @@
 package com.chowtime.controllers;
 
-import com.chowtime.models.Employee;
-import com.chowtime.models.OrderCartItem;
+import com.chowtime.models.*;
+import com.chowtime.models.MenuItem;
 import com.chowtime.services.EmployeeService;
 import com.chowtime.services.MenuService;
 import com.chowtime.services.OrderService;
@@ -13,7 +13,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import com.chowtime.models.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -21,7 +20,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MenuController {
 
@@ -67,6 +68,9 @@ public class MenuController {
     @FXML
     private TableColumn<OrderCartItem, BigDecimal> cartSubtotalColumn;
 
+    @FXML
+    private TableColumn<OrderCartItem, String> cartItemOptionsColumn;
+
     private final MenuService menuService = new MenuService();
     private final OrderService orderService = new OrderService();
     private final EmployeeService employeeService = new EmployeeService();
@@ -85,10 +89,11 @@ public class MenuController {
         categoryColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/3));
         priceColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/3));
 
-        cartItemNameColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/4));
-        cartQuantityColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/4));
-        cartPriceColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/4));
-        cartSubtotalColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/4));
+        cartItemNameColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
+        cartQuantityColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
+        cartPriceColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
+        cartSubtotalColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(1.0/6));
+        cartItemOptionsColumn.prefWidthProperty().bind(cartTableView.widthProperty().multiply(2.0/6));
 
         // Connect the table columns to the model getters
         itemNameColumn.setCellValueFactory(new PropertyValueFactory<>("itemName"));
@@ -99,6 +104,7 @@ public class MenuController {
         cartQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         cartPriceColumn.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         cartSubtotalColumn.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
+        cartItemOptionsColumn.setCellValueFactory(new PropertyValueFactory<>("optionsDescription"));
 
         cartTableView.setItems(cartItems);
 
@@ -169,7 +175,7 @@ public class MenuController {
 
         try {
             quantity = Integer.parseInt(quantityField.getText().trim());
-            if (quantity <= 0 || quantity > 255){
+            if (quantity < 1 || quantity > 255){
                 messageLabel.setText("Quantity must be between 1 and 255.");
                 return;
             }
@@ -178,26 +184,189 @@ public class MenuController {
             return;
         }
 
-        for (OrderCartItem cartItem : cartItems){
-            if (cartItem.getMenuItem().getId() == selectedItem.getId()){
-                int newQuantity = cartItem.getQuantity() + quantity;
-                if (newQuantity > 255){
-                    messageLabel.setText("Maximum quantity per item is 255.");
+        // If the food is customizable, open its customization dialog
+        if (selectedItem.isCustomizable()){
+            List<OptionGroup> optionGroups;
+
+            try {
+                optionGroups = menuService.getOptionGroupsForMenuItem(selectedItem.getId());
+            } catch (SQLException e) {
+                messageLabel.setText("Unable to load customization options");
+                e.printStackTrace();
+                return;
+            }
+
+            if (optionGroups.isEmpty()){
+                messageLabel.setText("No customization options are available.");
+                return;
+            }
+
+            List<MenuOption> selectedOptions = showCustomizationDialog(optionGroups);
+
+            // Canceled dialog
+            if (selectedOptions == null){
+                return;
+            }
+            cartItems.add(new OrderCartItem(selectedItem, quantity, selectedOptions));
+        } else {
+            // Non-customizable item.
+            for (OrderCartItem cartItem : cartItems){
+                if (cartItem.getMenuItem().getId() == selectedItem.getId()){
+                    int newQuantity = cartItem.getQuantity() + quantity;
+                    if (newQuantity > 255){
+                        messageLabel.setText("Maximum quantity per item is 255.");
+                        return;
+                    }
+                    cartItem.setQuantity(newQuantity);
+                    cartTableView.refresh();
+                    updateTotal();
+                    messageLabel.setText("Item quantity updated.");
                     return;
                 }
-                cartItem.setQuantity(newQuantity);
-                cartTableView.refresh();
-                updateTotal();
-                messageLabel.setText("Item quantity updated.");
-                return;
+            }
+            cartItems.add(new OrderCartItem(selectedItem, quantity));
+        }
+
+
+        cartTableView.refresh();
+        updateTotal();
+        quantityField.setText("1");
+        messageLabel.setText("Item added to the order.");
+    }
+
+    // handle showing a customizable dialog for food items that are customizable
+    private List<MenuOption> showCustomizationDialog(List<OptionGroup> optionGroups){
+        Dialog<ButtonType> dialog = new Dialog<>();
+
+        dialog.setTitle("Customize Food Item");
+        dialog.setHeaderText("Select your food customizations");
+
+        ButtonType addButton = new ButtonType("Add to Order");
+        ButtonType cancelButton = ButtonType.CANCEL;
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                addButton, cancelButton);
+
+        VBox content = new VBox(15);
+        content.setPadding(new javafx.geometry.Insets(10));
+
+        Map<OptionGroup, List<CheckBox>> groupCheckBoxes = new HashMap<>();
+
+        for (OptionGroup group : optionGroups) {
+
+            VBox groupBox = new VBox(8);
+
+            Label groupLabel = new Label(group.getGroupName()
+                            + " (Select "
+                            + group.getMinSelections()
+                            + "-"
+                            + group.getMaxSelections()
+                            + ")");
+
+            groupLabel.setStyle("-fx-font-weight: bold;");
+
+            List<CheckBox> checkBoxes = new ArrayList<>();
+
+            for (MenuOption option : group.getOptions()) {
+
+                CheckBox checkBox = new CheckBox(option.getOptionName()
+                                + " (+$"
+                                + option.getPrice()
+                                + ")");
+
+                checkBox.setUserData(option);
+
+                checkBoxes.add(checkBox);
+                groupBox.getChildren().add(checkBox);
+            }
+
+            groupCheckBoxes.put(group, checkBoxes);
+
+            content.getChildren().addAll(groupLabel, groupBox);
+        }
+
+        dialog.getDialogPane().setContent(content);
+
+        // Prevent adding until selections are valid.
+        javafx.scene.Node addButtonNode = dialog.getDialogPane().lookupButton(addButton);
+
+        addButtonNode.setDisable(true);
+
+        Runnable validateSelections = () -> {
+
+            boolean valid = true;
+
+            for (OptionGroup group : optionGroups) {
+
+                List<CheckBox> checkBoxes =
+                        groupCheckBoxes.get(group);
+
+                int selectedCount = 0;
+
+                for (CheckBox checkBox : checkBoxes) {
+                    if (checkBox.isSelected()) {
+                        selectedCount++;
+                    }
+                }
+
+                if (selectedCount < group.getMinSelections() || selectedCount > group.getMaxSelections()) {
+                    valid = false;
+                    break;
+                }
+            }
+
+            addButtonNode.setDisable(!valid);
+        };
+
+        for (OptionGroup group : optionGroups) {
+
+            List<CheckBox> checkBoxes = groupCheckBoxes.get(group);
+
+            for (CheckBox checkBox : checkBoxes) {
+                checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                            if (newValue) {
+
+                                int selectedCount = 0;
+
+                                for (CheckBox other : checkBoxes) {
+                                    if (other.isSelected()) {
+                                        selectedCount++;
+                                    }
+                                }
+
+                                if (selectedCount > group.getMaxSelections()) {
+                                    checkBox.setSelected(false);
+                                }
+                            }
+
+                            validateSelections.run();
+                        });
             }
         }
 
-        // Add a new item to the cart
-        cartItems.add(new OrderCartItem(selectedItem, quantity));
-        updateTotal();
-        messageLabel.setText("Item added to the order.");
-        quantityField.setText("1");
+        validateSelections.run();
+
+        dialog.getDialogPane().getButtonTypes();
+
+        java.util.Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isEmpty() || !result.get().equals(addButton)) {
+            return null;
+        }
+
+        List<MenuOption> selectedOptions = new ArrayList<>();
+
+        for (OptionGroup group : optionGroups) {
+
+            for (CheckBox checkBox : groupCheckBoxes.get(group)) {
+
+                if (checkBox.isSelected()) {
+                    selectedOptions.add((MenuOption) checkBox.getUserData());
+                }
+            }
+        }
+
+        return selectedOptions;
     }
 
     @FXML

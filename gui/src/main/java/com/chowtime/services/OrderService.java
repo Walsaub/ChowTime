@@ -1,6 +1,7 @@
 package com.chowtime.services;
 
 import com.chowtime.database.DatabaseConnection;
+import com.chowtime.models.MenuOption;
 import com.chowtime.models.OrderCartItem;
 
 import java.sql.Connection;
@@ -26,6 +27,11 @@ public class OrderService {
                 Values (?, ?, ?)
                 """;
 
+        String optionQuery = """
+                INSERT INTO OrderItemOption (orderItemID, optionID, quantity)
+                VALUES (?, ?, ?)
+                """;
+
         try (Connection connection = DatabaseConnection.getDatabaseConnection()) {
             connection.setAutoCommit(false);
             try {
@@ -46,15 +52,36 @@ public class OrderService {
                     }
                 }
 
-                // Add the food items to the order
-                try (PreparedStatement itemStatement = connection.prepareStatement(itemQuery)) {
+                // Add the food items and its selected options
+                try (PreparedStatement itemStatement = connection.prepareStatement(
+                        itemQuery,
+                        PreparedStatement.RETURN_GENERATED_KEYS);
+                     PreparedStatement optionStatement = connection.prepareStatement(optionQuery)) {
+
                     for (OrderCartItem item : items){
                         itemStatement.setInt(1, orderID);
                         itemStatement.setInt(2, item.getMenuItem().getId());
                         itemStatement.setInt(3, item.getQuantity());
-                        itemStatement.addBatch();
+                        itemStatement.executeUpdate();
+
+                        int orderItemID;
+
+                        try (ResultSet keys = itemStatement.getGeneratedKeys()) {
+                            if (!keys.next()){
+                                throw new SQLException("Failed to create order item.");
+                            }
+                            orderItemID = keys.getInt(1);
+                        }
+
+                        // Save selected customization option
+                        for (MenuOption option : item.getSelectedOptions()){
+                            optionStatement.setInt(1, orderItemID);
+                            optionStatement.setInt(2, option.getId());
+                            optionStatement.setInt(3, 1);
+
+                            optionStatement.executeUpdate();
+                        }
                     }
-                    itemStatement.executeBatch();
                 }
 
                 connection.commit();
