@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.chowtime.controllers.ManagerController"
+            prefWidth="700"
+            prefHeight="900">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 15;">
+            <Label text="Manager Dashboard"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <HBox spacing="10">
+                <Button text="Refresh Dashboard"
+                        onAction="#handleRefresh"/>
+
+                <Label fx:id="messageLabel"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+
+            <!-- Employees -->
+            <Tab text="Employees">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <TableView fx:id="employeesTable"
+                               prefHeight="250">
+                        <columns>
+                            <TableColumn fx:id="employeeIDColumn" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="employeeFirstNameColumn" text="First Name" prefWidth="120"/>
+                            <TableColumn fx:id="employeeLastNameColumn" text="Last Name" prefWidth="120"/>
+                            <TableColumn fx:id="employeeUsernameColumn" text="Username" prefWidth="120"/>
+                            <TableColumn fx:id="employeeRoleColumn" text="Role" prefWidth="120"/>
+                        </columns>
+                    </TableView>
+
+                    <Label text="Employee Information"
+                           style="-fx-font-weight: bold;"/>
+
+                    <GridPane hgap="10" vgap="10">
+                        <Label text="First Name"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="firstNameField"
+                                   GridPane.rowIndex="0"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Last Name"
+                               GridPane.rowIndex="1"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="lastNameField"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Username"
+                               GridPane.rowIndex="2"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="usernameField"
+                                   GridPane.rowIndex="2"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Password"
+                               GridPane.rowIndex="3"
+                               GridPane.columnIndex="0"/>
+
+                        <PasswordField fx:id="passwordField"
+                                       GridPane.rowIndex="3"
+                                       GridPane.columnIndex="1"/>
+
+                        <Label text="Role"
+                               GridPane.rowIndex="4"
+                               GridPane.columnIndex="0"/>
+
+                        <ComboBox fx:id="roleComboBox"
+                                  GridPane.rowIndex="4"
+                                  GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <HBox spacing="10">
+                        <Button text="Add Employee"
+                                onAction="#handleAddEmployee"/>
+
+                        <Button text="Update Employee"
+                                onAction="#handleUpdateEmployee"/>
+
+                        <Button text="Update Password"
+                                onAction="#handleUpdatePassword"/>
+
+                        <Button text="Delete Employee"
+                                onAction="#handleDeleteEmployee"/>
+
+                        <Button text="Clear Fields"
+                                onAction="#handleClearEmployeeFields"/>
+                    </HBox>
+
+                </VBox>
+            </Tab>
+
+            <!-- Food Items -->
+            <Tab text="Food Items">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <TableView fx:id="foodItemsTable"
+                               prefHeight="250">
+                        <columns>
+                            <TableColumn fx:id="foodIDColumn" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="foodNameColumn" text="Name" prefWidth="140"/>
+                            <TableColumn fx:id="foodCategoryColumn" text="Category" prefWidth="120"/>
+                            <TableColumn fx:id="foodPriceColumn" text="Price" prefWidth="100"/>
+                            <TableColumn fx:id="foodAvailableColumn" text="Available" prefWidth="90"/>
+                            <TableColumn fx:id="foodCustomizableColumn" text="Customizable" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+
+                    <Label text="Food Item Information"
+                           style="-fx-font-weight: bold;"/>
+
+                    <GridPane hgap="10" vgap="10">
+
+                        <Label text="Name"
+                               GridPane.rowIndex="0"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="foodNameField"
+                                   GridPane.rowIndex="0"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Description"
+                               GridPane.rowIndex="1"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="foodDescriptionField"
+                                   GridPane.rowIndex="1"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Price"
+                               GridPane.rowIndex="2"
+                               GridPane.columnIndex="0"/>
+
+                        <TextField fx:id="foodPriceField"
+                                   GridPane.rowIndex="2"
+                                   GridPane.columnIndex="1"/>
+
+                        <Label text="Category"
+                               GridPane.rowIndex="3"
+                               GridPane.columnIndex="0"/>
+
+                        <ComboBox fx:id="foodCategoryComboBox"
+                                  GridPane.rowIndex="3"
+                                  GridPane.columnIndex="1"/>
+
+                        <Label text="Available"
+                               GridPane.rowIndex="4"
+                               GridPane.columnIndex="0"/>
+
+                        <CheckBox fx:id="foodAvailableCheckBox"
+                                  GridPane.rowIndex="4"
+                                  GridPane.columnIndex="1"/>
+
+                        <Label text="Customizable"
+                               GridPane.rowIndex="5"
+                               GridPane.columnIndex="0"/>
+
+                        <CheckBox fx:id="foodCustomizableCheckBox"
+                                  GridPane.rowIndex="5"
+                                  GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <HBox spacing="10">
+                        <Button text="Add Food Item"
+                                onAction="#handleAddFoodItem"/>
+
+                        <Button text="Update Food Item"
+                                onAction="#handleUpdateFoodItem"/>
+
+                        <Button text="Delete Food Item"
+                                onAction="#handleDeleteFoodItem"/>
+
+                        <Button text="Clear Fields"
+                                onAction="#handleClearFoodFields"/>
+                    </HBox>
+
+                </VBox>
+            </Tab>
+
+            <!-- Reports -->
+            <Tab text="Most Ordered Food">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <Label text="Most Ordered Food Items"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="mostOrderedTable"
+                               VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="mostOrderedNameColumn" text="Food Item" prefWidth="250"/>
+                            <TableColumn fx:id="mostOrderedQuantityColumn" text="Total Ordered" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+
+                    <Button text="Refresh Report"
+                            onAction="#handleRefreshReport"/>
+
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+
+</BorderPane>

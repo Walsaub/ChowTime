@@ -1,10 +1,12 @@
 package com.chowtime.services;
 
 import com.chowtime.database.DatabaseConnection;
+import com.chowtime.models.ManagerFoodItem;
 import com.chowtime.models.MenuItem;
 import com.chowtime.models.MenuOption;
 import com.chowtime.models.OptionGroup;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -166,6 +168,156 @@ public class MenuService {
             menuItem.setAllergens(new ArrayList<>());
         }
         return menuItem;
+    }
+
+    //retrieve food items for the manager
+    public List<ManagerFoodItem> getAllFoodItems() throws SQLException {
+
+        List<ManagerFoodItem> items = new ArrayList<>();
+
+        String query = """
+            SELECT mi.id, mi.itemName, mi.description,
+                   mi.price, mi.categoryID,
+                   mc.categoryName, mi.isAvailable,
+                   mi.isCustomizable
+            FROM MenuItem mi
+            JOIN MenuCategory mc ON mi.categoryID = mc.id
+            ORDER BY mc.categoryName, mi.itemName
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet result = statement.executeQuery()) {
+
+            while (result.next()) {
+                items.add(new ManagerFoodItem(
+                        result.getInt("id"),
+                        result.getString("itemName"),
+                        result.getString("description"),
+                        result.getBigDecimal("price"),
+                        result.getInt("categoryID"),
+                        result.getString("categoryName"),
+                        result.getBoolean("isAvailable"),
+                        result.getBoolean("isCustomizable")
+                ));
+            }
+        }
+
+        return items;
+    }
+
+    // retrieve categories for the manager
+    public List<String> getAllCategoryNames() throws SQLException {
+        List<String> categories = new ArrayList<>();
+        String query = """
+            SELECT categoryName
+            FROM MenuCategory
+            ORDER BY categoryName
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet result = statement.executeQuery()) {
+
+            while (result.next()) {
+                categories.add(result.getString("categoryName"));
+            }
+        }
+
+        return categories;
+    }
+
+    // convert a selected category name into its ID
+    public int getCategoryID(String categoryName) throws SQLException {
+        String query = """
+            SELECT id
+            FROM MenuCategory
+            WHERE categoryName = ?
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setString(1, categoryName);
+
+            try (ResultSet result = statement.executeQuery()) {
+                if (result.next()) {
+                    return result.getInt("id");
+                }
+            }
+        }
+
+        throw new SQLException("Category not found.");
+    }
+
+    // add a food item
+    public void addFoodItem(String itemName, String description, BigDecimal price, int categoryID, boolean available, boolean customizable) throws SQLException {
+
+        String query = """
+            INSERT INTO MenuItem
+                (categoryID, itemName, description, price,
+                 isAvailable, isCustomizable)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, categoryID);
+            statement.setString(2, itemName);
+            statement.setString(3, description);
+            statement.setBigDecimal(4, price);
+            statement.setBoolean(5, available);
+            statement.setBoolean(6, customizable);
+
+            statement.executeUpdate();
+        }
+    }
+
+    // update a food item
+    public void updateFoodItem(int itemID, String itemName, String description, BigDecimal price, int categoryID, boolean available, boolean customizable) throws SQLException {
+
+        String query = """
+            UPDATE MenuItem
+            SET categoryID = ?,
+                itemName = ?,
+                description = ?,
+                price = ?,
+                isAvailable = ?,
+                isCustomizable = ?
+            WHERE id = ?
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, categoryID);
+            statement.setString(2, itemName);
+            statement.setString(3, description);
+            statement.setBigDecimal(4, price);
+            statement.setBoolean(5, available);
+            statement.setBoolean(6, customizable);
+            statement.setInt(7, itemID);
+
+            statement.executeUpdate();
+        }
+    }
+
+    // delete food item
+    public void deleteFoodItem(int itemID) throws SQLException {
+
+        String query = """
+            DELETE FROM MenuItem
+            WHERE id = ?
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, itemID);
+
+            statement.executeUpdate();
+        }
     }
 
 }
