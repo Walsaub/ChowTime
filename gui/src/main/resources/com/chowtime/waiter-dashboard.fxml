@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.chowtime.controllers.WaiterController"
+            prefWidth="700"
+            prefHeight="900">
+
+    <top>
+        <VBox spacing="8" style="-fx-padding: 15;">
+            <Label text="Waiter Dashboard"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+            <Label fx:id="welcomeLabel"/>
+
+            <Button text="Refresh Dashboard"
+                    onAction="#handleRefresh"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+
+            <!-- Tab 1: Orders -->
+            <Tab text="My Orders">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <Label text="Orders for My Tables"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="ordersTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="orderIdColumn" text="Order" prefWidth="65"/>
+                            <TableColumn fx:id="orderTableNumberColumn" text="Table" prefWidth="65"/>
+                            <TableColumn fx:id="orderStatusColumn" text="Status" prefWidth="110"/>
+                            <TableColumn fx:id="orderDateColumn" text="Time" prefWidth="160"/>
+                        </columns>
+                    </TableView>
+
+                    <Label text="Selected Order Items"
+                           style="-fx-font-weight: bold;"/>
+
+                    <TableView fx:id="orderItemsTable"
+                               prefHeight="200">
+                        <columns>
+                            <TableColumn fx:id="orderItemNameColumn" text="Food Item" prefWidth="150"/>
+                            <TableColumn fx:id="orderItemQuantityColumn" text="Quantity" prefWidth="80"/>
+                            <TableColumn fx:id="orderItemOptionsColumn" text="Customizations" prefWidth="200"/>
+                        </columns>
+                    </TableView>
+
+                </VBox>
+            </Tab>
+
+            <!-- Tab 2: Tables -->
+            <Tab text="My Tables">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <Label text="Assigned Tables"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="tablesTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="tableNumberColumn" text="Table" prefWidth="100"/>
+                            <TableColumn fx:id="tableCapacityColumn" text="Capacity" prefWidth="100"/>
+                            <TableColumn fx:id="tableStatusColumn" text="Status" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+
+                    <Button text="Open Food Ordering"
+                            onAction="#handleOpenFoodOrdering"/>
+
+                </VBox>
+            </Tab>
+
+            <!-- Tab 3: Help Requests -->
+            <Tab text="Help Requests">
+                <VBox spacing="10" style="-fx-padding: 10;">
+
+                    <Label text="Help Requests for My Tables"
+                           style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+                    <TableView fx:id="helpRequestsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="helpRequestIdColumn" text="Request" prefWidth="80"/>
+                            <TableColumn fx:id="helpTableNumberColumn" text="Table" prefWidth="100"/>
+                            <TableColumn fx:id="helpRequestTimeColumn" text="Request Time" prefWidth="180"/>
+                            <TableColumn fx:id="helpRequestStatusColumn" text="Status" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+
+                    <Button text="Mark Selected Request as Handled"
+                            onAction="#handleMarkRequestHandled"/>
+
+                </VBox>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+    <bottom>
+        <Label fx:id="messageLabel"
+               style="-fx-padding: 10;"/>
+    </bottom>
+
+</BorderPane>

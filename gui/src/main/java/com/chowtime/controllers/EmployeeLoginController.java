@@ -54,6 +54,13 @@ public class EmployeeLoginController {
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 Scene scene = new Scene(loader.load());
+
+                if ("Waiter".equals(employee.getRoleName())){
+                    WaiterController controller = loader.getController();
+                    String waiterName = employee.toString();
+                    controller.setWaiterContext(employee.getId(), waiterName);
+                }
+
                 Stage stage = (Stage) passwordField.getScene().getWindow();
                 stage.setTitle("Chow Time - Dashboard");
                 stage.setScene(scene);
