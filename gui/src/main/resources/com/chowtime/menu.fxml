@@ -77,6 +77,9 @@
                 onAction="#handleRemoveItem"/>
         <Button text="Place Order"
                 onAction="#handlePlaceOrder"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Request Assistance"
+                onAction="#handleRequestAssistance"/>
     </HBox>
 
     <Label fx:id="totalLabel"

@@ -2,10 +2,7 @@ package com.chowtime.controllers;
 
 import com.chowtime.models.*;
 import com.chowtime.models.MenuItem;
-import com.chowtime.services.EmployeeService;
-import com.chowtime.services.MenuService;
-import com.chowtime.services.OrderService;
-import com.chowtime.services.TableService;
+import com.chowtime.services.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -78,6 +75,7 @@ public class MenuController {
     private final OrderService orderService = new OrderService();
     private final EmployeeService employeeService = new EmployeeService();
     private final TableService tableService = new TableService();
+    private final HelpRequestService helpRequestService = new HelpRequestService();
 
     private final ObservableList<OrderCartItem> cartItems = FXCollections.observableArrayList();
 
@@ -492,6 +490,22 @@ public class MenuController {
             stage.show();
         } catch (SQLException | IOException e){
             messageLabel.setText("Unable to close table.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleRequestAssistance() {
+        if (tableID <= 0) {
+            messageLabel.setText("Table information is unavailable.");
+            return;
+        }
+        try {
+            helpRequestService.createHelpRequest(tableID);
+
+            messageLabel.setText("Assistance requested.");
+        } catch (SQLException e) {
+            messageLabel.setText("Unable to request assistance.");
             e.printStackTrace();
         }
     }
