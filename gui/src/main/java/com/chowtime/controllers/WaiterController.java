@@ -212,7 +212,7 @@ public class WaiterController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/menu.fxml"));
             Scene scene = new Scene(loader.load());
             MenuController menuController = loader.getController();
-            menuController.setOrderContext(
+            menuController.setWaiterOrderContext(
                     selectedTable.getId(),
                     employeeID,
                     selectedTable.getTableNumber(),
@@ -241,6 +241,26 @@ public class WaiterController {
             messageLabel.setText("Help request marked as handled.");
         } catch (SQLException e){
             messageLabel.setText("Unable to update help request.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/tables.fxml"));
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) welcomeLabel.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Restaurant Tables");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to log out.");
             e.printStackTrace();
         }
     }

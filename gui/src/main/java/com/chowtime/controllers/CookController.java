@@ -5,12 +5,16 @@ import com.chowtime.models.KitchenOrderItem;
 import com.chowtime.services.KitchenService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -140,6 +144,28 @@ public class CookController {
         } catch (SQLException | IllegalArgumentException e) {
 
             messageLabel.setText(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/com/chowtime/tables.fxml")
+            );
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) messageLabel.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Restaurant Tables");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to log out.");
             e.printStackTrace();
         }
     }

@@ -78,8 +78,14 @@
         <Button text="Place Order"
                 onAction="#handlePlaceOrder"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button text="Request Assistance"
+        <Button fx:id="requestAssistanceButton"
+                text="Request Assistance"
                 onAction="#handleRequestAssistance"/>
+        <Button fx:id="backToWaiterDashboardButton"
+                text="Back to Waiter Dashboard"
+                onAction="#handleBackToWaiterDashboard"
+                visible="false"
+                managed="false"/>
     </HBox>
 
     <Label fx:id="totalLabel"

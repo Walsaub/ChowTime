@@ -82,8 +82,22 @@ public class MenuController {
     private int tableID;
     private int waiterID;
 
+    private String waiterName;
+    private boolean openedFromWaiterDashboard = false;
+
+    @FXML
+    private Button backToWaiterDashboardButton;
+
+    @FXML
+    private Button requestAssistanceButton;
+
     @FXML
     public void initialize(){
+
+        if (backToWaiterDashboardButton != null) {
+            backToWaiterDashboardButton.setVisible(false);
+            backToWaiterDashboardButton.setManaged(false);
+        }
 
         // resize the tables columns
         itemNameColumn.prefWidthProperty().bind(menuTableView.widthProperty().multiply(1.0/4));
@@ -119,6 +133,42 @@ public class MenuController {
         this.tableID = tableID;
         this.waiterID = waiterID;
         tableInfoLabel.setText("Table " + tableNumber + " | Waiter: " + waiterName);
+    }
+
+    public void setWaiterOrderContext(int tableID, int waiterID, int tableNumber, String waiterName) {
+
+        setOrderContext(tableID, waiterID, tableNumber, waiterName);
+
+        this.waiterName = waiterName;
+        this.openedFromWaiterDashboard = true;
+
+        backToWaiterDashboardButton.setVisible(true);
+        backToWaiterDashboardButton.setManaged(true);
+        requestAssistanceButton.setVisible(false);
+    }
+
+    @FXML
+    private void handleBackToWaiterDashboard() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/waiter-dashboard.fxml"));
+
+            Scene scene = new Scene(loader.load());
+
+            WaiterController controller = loader.getController();
+
+            controller.setWaiterContext(waiterID, waiterName);
+
+            Stage stage = (Stage) menuTableView.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Waiter Dashboard");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to return to waiter dashboard.");
+            e.printStackTrace();
+        }
     }
 
 
@@ -445,7 +495,7 @@ public class MenuController {
 
         var result = dialog.showAndWait();
 
-        if (result.isEmpty() || result.get() != confirmButton){
+        if (result.isEmpty() || !result.get().equals(confirmButton)){
             return;
         }
 

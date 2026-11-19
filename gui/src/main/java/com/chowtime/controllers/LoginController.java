@@ -59,10 +59,10 @@ public class LoginController {
 
     //move to the main window
     private void openMainWindow() throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/employee-login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/tables.fxml"));
         Scene scene = new Scene(loader.load());
         Stage stage = (Stage) loginButton.getScene().getWindow();
-        stage.setTitle("Chow Time - Login");
+        stage.setTitle("Chow Time - Restaurant Tables");
         stage.setScene(scene);
         stage.centerOnScreen();
     }

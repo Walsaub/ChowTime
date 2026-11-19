@@ -42,15 +42,18 @@ public class EmployeeLoginController {
 
             if (employee != null){
                 messageLabel.setText("");
-                
 
-                //TODO: Open the dashboard
                 String fxmlPath = switch (employee.getRoleName()) {
                     case "Manager" -> "/com/chowtime/manager-dashboard.fxml";
                     case "Waiter" -> "/com/chowtime/waiter-dashboard.fxml";
                     case "Cook" -> "/com/chowtime/cook-dashboard.fxml";
                     default -> null;
                 };
+
+                if (fxmlPath == null) {
+                    messageLabel.setText("Your employee role is not recognized.");
+                    return;
+                }
 
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
                 Scene scene = new Scene(loader.load());
@@ -71,6 +74,27 @@ public class EmployeeLoginController {
             }
         } catch (SQLException | IOException e){
             messageLabel.setText("Unable to connect to the database.");
+            e.printStackTrace();
+        }
+    }
+
+    // navigate back to the waiter dashboard
+    @FXML
+    private void handleBackToTables() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/tables.fxml"));
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) passwordField.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Restaurant Tables");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to return to table selection.");
             e.printStackTrace();
         }
     }

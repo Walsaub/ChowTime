@@ -18,6 +18,11 @@
         <Insets top="25" right="30" bottom="25" left="30"/>
     </padding>
 
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Employee Login"
+                onAction="#handleEmployeeLogin"/>
+    </HBox>
+
     <Label text="Select from the available restaurant tables."/>
 
     <TableView fx:id="tablesTableView"

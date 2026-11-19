@@ -13,6 +13,11 @@
 
     <top>
         <VBox spacing="10" style="-fx-padding: 15;">
+            <HBox alignment="CENTER_RIGHT">
+                <Button text="Logout"
+                        onAction="#handleLogout"/>
+            </HBox>
+
             <Label text="Cook Dashboard"
                    style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
 

@@ -146,6 +146,27 @@ public class TableController {
         }
     }
 
+    // handles navigating to the employee login view
+    @FXML
+    private void handleEmployeeLogin() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/employee-login.fxml"));
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) tablesTableView.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Employee Login");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to open employee login.");
+            e.printStackTrace();
+        }
+    }
+
     @FXML
     private void handleRefresh(){
         loadAvailableTables();

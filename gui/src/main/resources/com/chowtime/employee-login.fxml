@@ -19,6 +19,12 @@
         <Insets top="30" right="40" bottom="30" left="40"/>
     </padding>
 
+    <HBox alignment="CENTER_RIGHT">
+        <Button text="Back to Tables"
+                onAction="#handleBackToTables"
+                maxWidth="150"/>
+    </HBox>
+
     <Label text="Chow Time"
            style="-fx-font-size: 28px; -fx-font-weight: bold;"/>
 

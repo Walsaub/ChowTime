@@ -29,7 +29,7 @@ public class EmployeeService {
                 if (result.next()){
                     String passwordHash = result.getString("passwordHash");
                     //TODO: replace the string check with a hash check
-                    if (passwordHash != null && Objects.equals(password, passwordHash)/*BCrypt.checkpw(password, passwordHash)*/){
+                    if (passwordHash != null && BCrypt.checkpw(password, passwordHash)){
                         return new Employee(
                                 result.getInt("id"),
                                 result.getString("firstName"),

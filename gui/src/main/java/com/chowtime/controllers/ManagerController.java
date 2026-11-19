@@ -8,9 +8,13 @@ import com.chowtime.services.ManagerService;
 import com.chowtime.services.MenuService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 
@@ -537,6 +541,26 @@ public class ManagerController {
         return alert.showAndWait().filter(response ->
                         response == ButtonType.OK)
                 .isPresent();
+    }
+
+    @FXML
+    private void handleLogout() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/chowtime/tables.fxml"));
+
+            Scene scene = new Scene(loader.load());
+
+            Stage stage = (Stage) messageLabel.getScene().getWindow();
+
+            stage.setScene(scene);
+            stage.setTitle("Chow Time - Restaurant Tables");
+            stage.centerOnScreen();
+
+        } catch (IOException e) {
+            messageLabel.setText("Unable to log out.");
+            e.printStackTrace();
+        }
     }
 
 }
