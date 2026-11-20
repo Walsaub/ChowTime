@@ -72,10 +72,9 @@ public class WaiterService {
 
     private static final String UPDATE_HELP_REQUEST_QUERY = """
             UPDATE HelpRequest
-            SET requestStatus = 'completed',
+            SET requestStatus = ?,
                 handledByEmployeeID = ?
             WHERE id = ?
-              AND requestStatus <> 'completed'
             """;
 
     public List<WaiterTable> getAssignedTables(int waiterID) throws SQLException{
@@ -158,16 +157,63 @@ public class WaiterService {
         return requests;
     }
 
-    public void handleHelpRequest(int requestID, int employeeID) throws SQLException{
-        try (Connection connection = DatabaseConnection.getDatabaseConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_HELP_REQUEST_QUERY)) {
-            statement.setInt(1, employeeID);
-            statement.setInt(2, requestID);
+    public void updateHelpRequestStatus(int requestID, int employeeID, String newStatus) throws SQLException{
 
-            int updated = statement.executeUpdate();
+        if (!newStatus.equals("pending")
+                && !newStatus.equals("in_progress")
+                && !newStatus.equals("completed")) {
+            throw new IllegalArgumentException("Invalid help request status.");
+        }
 
-            if (updated == 0){
-                throw new SQLException("Help request was already handled or no longer exists.");
+        String currentStatusQuery = """
+            SELECT requestStatus
+            FROM HelpRequest
+            WHERE id = ?
+            FOR UPDATE
+            """;
+
+        try (Connection connection = DatabaseConnection.getDatabaseConnection()) {
+
+            connection.setAutoCommit(false);
+
+            try {
+                String currentStatus;
+
+                try (PreparedStatement statement = connection.prepareStatement(currentStatusQuery)) {
+                    statement.setInt(1, requestID);
+                    try (ResultSet result = statement.executeQuery()) {
+                        if (!result.next()){
+                            throw new SQLException("Help request not found.");
+                        }
+                        currentStatus = result.getString("requestStatus");
+                    }
+                }
+
+                boolean validTransition = switch (currentStatus.toLowerCase()) {
+                    case "pending" -> newStatus.equals("in_progress");
+                    case "in_progress" -> newStatus.equals("completed");
+                    default -> false;
+                };
+
+                if (!validTransition) {
+                    throw new SQLException(
+                            "Invalid status change from " + currentStatus + " to " + newStatus
+                    );
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(UPDATE_HELP_REQUEST_QUERY)){
+                    statement.setString(1, newStatus);
+                    statement.setInt(2, employeeID);
+                    statement.setInt(3, requestID);
+
+                    statement.executeUpdate();
+                }
+                connection.commit();
+            } catch (SQLException | RuntimeException e){
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
             }
         }
     }

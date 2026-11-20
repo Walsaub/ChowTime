@@ -99,8 +99,18 @@
                         </columns>
                     </TableView>
 
-                    <Button text="Mark Selected Request as Handled"
-                            onAction="#handleMarkRequestHandled"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+
+                        <Label text="Update Status:"/>
+
+                        <ComboBox fx:id="helpRequestStatusComboBox"
+                                  prefWidth="150"
+                                  promptText="Select Status"/>
+
+                        <Button text="Update Request"
+                                onAction="#handleUpdateHelpRequestStatus"/>
+
+                    </HBox>
 
                 </VBox>
             </Tab>

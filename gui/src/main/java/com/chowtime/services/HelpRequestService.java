@@ -11,7 +11,7 @@ public class HelpRequestService {
             INSERT INTO HelpRequest
                 (tableID, handledByEmployeeID, requestTime, requestStatus)
             VALUES
-                (?, NULL, NOW(), 'Pending')
+                (?, NULL, NOW(), 'pending')
             """;
 
     public void createHelpRequest(int tableID) throws SQLException{

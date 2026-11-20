@@ -9,9 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -85,6 +83,12 @@ public class WaiterController {
     @FXML
     private TableColumn<WaiterHelpRequest, String> helpRequestStatusColumn;
 
+    @FXML
+    private ComboBox<String> helpRequestStatusComboBox;
+
+    @FXML
+    private Button updateHelpRequestButton;
+
     private final WaiterService waiterService = new WaiterService();
 
     private int employeeID;
@@ -148,6 +152,14 @@ public class WaiterController {
                         orderItemsTable.getItems().clear();
                     }
                 });
+
+        helpRequestStatusComboBox.setItems(FXCollections.observableArrayList(
+                "pending",
+                "in_progress",
+                "completed"
+        ));
+
+        helpRequestStatusComboBox.setValue("pending");
     }
 
     private void loadDashboard(){
@@ -228,17 +240,24 @@ public class WaiterController {
     }
 
     @FXML
-    private void handleMarkRequestHandled(){
+    private void handleUpdateHelpRequestStatus(){
         WaiterHelpRequest selectedRequest = helpRequestsTable.getSelectionModel().getSelectedItem();
         if (selectedRequest == null){
             messageLabel.setText("Please select a help request.");
             return;
         }
 
+        String selectedStatus = helpRequestStatusComboBox.getValue();
+
+        if (selectedStatus == null) {
+            messageLabel.setText("Please select a status.");
+            return;
+        }
+
         try {
-            waiterService.handleHelpRequest(selectedRequest.getId(), employeeID);
+            waiterService.updateHelpRequestStatus(selectedRequest.getId(), employeeID, selectedStatus);
             loadHelpRequests();
-            messageLabel.setText("Help request marked as handled.");
+            messageLabel.setText("Help request status updated successfully.");
         } catch (SQLException e){
             messageLabel.setText("Unable to update help request.");
             e.printStackTrace();
