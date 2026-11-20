@@ -12,7 +12,7 @@ import java.util.List;
 
 public class OrderService {
 
-    public int createOrder(int tableID, int waiterID, List<OrderCartItem> items) throws SQLException {
+    public int createOrder(int tableID, Integer waiterID, List<OrderCartItem> items) throws SQLException {
         if (items == null || items.isEmpty()){
             throw new IllegalArgumentException("The order must contain at least one item.");
         }
@@ -40,7 +40,11 @@ public class OrderService {
                 // Create the main order
                 try (PreparedStatement orderStatement = connection.prepareStatement(orderQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
                     orderStatement.setInt(1, tableID);
-                    orderStatement.setInt(2, waiterID);
+                    if (waiterID == null){
+                        orderStatement.setNull(2, java.sql.Types.INTEGER);
+                    } else{
+                        orderStatement.setInt(2, waiterID);
+                    }
 
                     orderStatement.executeUpdate();
 

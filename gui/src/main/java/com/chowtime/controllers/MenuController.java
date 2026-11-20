@@ -81,6 +81,7 @@ public class MenuController {
 
     private int tableID;
     private int waiterID;
+    private Integer enteredByEmployeeID = null;
 
     private String waiterName;
     private boolean openedFromWaiterDashboard = false;
@@ -132,6 +133,7 @@ public class MenuController {
     public void setOrderContext(int tableID, int waiterID, int tableNumber, String waiterName){
         this.tableID = tableID;
         this.waiterID = waiterID;
+        this.enteredByEmployeeID = null;
         tableInfoLabel.setText("Table " + tableNumber + " | Waiter: " + waiterName);
     }
 
@@ -141,6 +143,8 @@ public class MenuController {
 
         this.waiterName = waiterName;
         this.openedFromWaiterDashboard = true;
+
+        this.enteredByEmployeeID = waiterID;
 
         backToWaiterDashboardButton.setVisible(true);
         backToWaiterDashboardButton.setManaged(true);
@@ -450,13 +454,13 @@ public class MenuController {
             return;
         }
 
-        if (tableID <= 0 || waiterID <= 0){
-            messageLabel.setText("Table or waiter information is missing.");
+        if (tableID <= 0){
+            messageLabel.setText("Table information is missing.");
             return;
         }
 
         try {
-            int orderID = orderService.createOrder(tableID, waiterID, new ArrayList<>(cartItems));
+            int orderID = orderService.createOrder(tableID, enteredByEmployeeID, new ArrayList<>(cartItems));
             cartItems.clear();
             updateTotal();
             messageLabel.setText("Order #" + orderID + " created successfully.");
