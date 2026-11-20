@@ -10,6 +10,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.chowtime.controllers.MenuController"
+      stylesheets="@css/style.css"
       spacing="12"
       prefHeight="700" prefWidth="1000">
 

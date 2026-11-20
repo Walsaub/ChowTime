@@ -9,7 +9,8 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.chowtime.controllers.CookController">
+            fx:controller="com.chowtime.controllers.CookController"
+            stylesheets="@css/style.css">
 
     <top>
         <VBox spacing="10" style="-fx-padding: 15;">

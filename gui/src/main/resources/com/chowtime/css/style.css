@@ -1,0 +1,112 @@
+
+/* Main application background */
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-background-color: #F8F5F0;
+    -fx-text-fill: #3E3028;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #3E3028;
+}
+
+/* Headings */
+.heading {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #593D2B;
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: #C87535;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #A95E29;
+}
+
+.button:pressed {
+    -fx-background-color: #87491F;
+}
+
+/* Text fields and password fields */
+.text-field,
+.password-field,
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #D8C9B9;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 7px;
+}
+
+/* Tables */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #E2D7CA;
+    -fx-border-radius: 5px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #EDE3D7;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #593D2B;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #F0EAE3 transparent;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #D98B50;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: white;
+}
+
+/* Tabs */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #F8F5F0;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #EDE3D7;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #C87535;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Split panes */
+.split-pane {
+    -fx-background-color: #F8F5F0;
+}
+
+/* Checkboxes */
+.check-box {
+    -fx-text-fill: #3E3028;
+}
+
+/* Messages */
+.message-label {
+    -fx-text-fill: #A95E29;
+    -fx-font-weight: bold;
+}
