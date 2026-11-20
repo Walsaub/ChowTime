@@ -5,10 +5,7 @@ import com.chowtime.services.DatabaseService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -45,8 +42,13 @@ public class LoginController {
             //store the credentials
             DatabaseConnection.configure(username, password);
             //initialize the database
-            databaseService.initializeDatabase();
+            boolean sampleDataInserted = databaseService.initializeDatabase();
+
             openMainWindow();
+
+            if (sampleDataInserted) {
+                showTemporaryEmployeeCredentials();
+            }
         } catch (Exception e){
             statusLabel.setText("Connection failed. check your credentials.");
             passwordField.clear();
@@ -55,6 +57,30 @@ public class LoginController {
         } finally {
             loginButton.setDisable(false);
         }
+    }
+
+    private void showTemporaryEmployeeCredentials() {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Chow Time - Temporary Accounts");
+        alert.setHeaderText("Sample employees have been created!");
+
+        alert.setContentText(
+                "Use the following temporary credentials to test the application:\n\n"
+                        + "WAITER\n"
+                        + "Username: johnsmith\n"
+                        + "Password: 1234\n\n"
+                        + "COOK\n"
+                        + "Username: davidbrown\n"
+                        + "Password: 1234\n\n"
+                        + "MANAGER\n"
+                        + "Username: sarahwilson\n"
+                        + "Password: 1234\n\n"
+                        + "These credentials are for testing only."
+        );
+
+        alert.showAndWait();
     }
 
     //move to the main window
